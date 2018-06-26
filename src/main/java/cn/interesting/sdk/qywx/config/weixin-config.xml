@@ -21,6 +21,7 @@
             <agent>
             	<!-- 唯一标识 -->
             	<id>100000</id>
+                <name>应用名称</name>
             	<!-- secret是企业应用里面用于保障数据安全的“钥匙” -->
             	<secret></secret>
             </agent>

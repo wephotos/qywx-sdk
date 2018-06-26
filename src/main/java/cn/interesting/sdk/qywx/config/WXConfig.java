@@ -205,6 +205,10 @@ public final class WXConfig {
 		 */
 		private int id = 0;
 		/**
+		 * 应用名称
+		 */
+		private String name = "";
+		/**
 		 * 应用密钥
 		 */
 		private String secret = "";
@@ -221,9 +225,18 @@ public final class WXConfig {
 		public void setSecret(String secret) {
 			this.secret = secret;
 		}
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+
 		@Override
 		public String toString() {
-			return "Agent [id=" + id + ", secret=" + secret + "]";
+			return "Agent [id=" + id + ", secret=" + secret + ",name=" + name + "]";
 		}
 		
 	}
