@@ -33,7 +33,7 @@ public final class DomainUtils {
 		InputStream input = null;
 		try{
 			ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-			input = classLoader.getResourceAsStream("java/cn/microvideo/sdk/qywx/config/domain.properties");
+			input = classLoader.getResourceAsStream("java/cn/interesting/sdk/qywx/config/domain.properties");
 			if(input != null){
 				properties.load(input);
 			}

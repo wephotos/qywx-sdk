@@ -1,5 +1,7 @@
 package cn.interesting.sdk.qywx;
 
+import java.io.Serializable;
+
 import cn.interesting.sdk.qywx.exception.AccessTokenInvalidException;
 import cn.interesting.sdk.qywx.exception.ErrcodeException;
 
@@ -8,7 +10,11 @@ import cn.interesting.sdk.qywx.exception.ErrcodeException;
  * @author Aaron.tian
  *
  */
-public class WeChatRES {
+public class WeChatRES implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	/**
 	 * 访问凭证超时
 	 */

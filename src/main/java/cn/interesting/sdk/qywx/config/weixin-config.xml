@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <weixin xmlns:xs="http://www.w3.org/2001/XMLSchema">
 	<!-- 要扫描的应用程序包 -->
-    <agent-scan base-package="cn.microvideo.sdk.qywx.agent"/>
+    <agent-scan base-package="cn.interesting.sdk.qywx.agent"/>
     <!-- 配置参数 -->
     <config>
     	<!-- 企业号ID -->

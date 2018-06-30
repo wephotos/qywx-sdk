@@ -163,7 +163,7 @@ public final class AgentDispatcher {
 	
 	/**
 	 * 推送消息到微信终端
-	 * {@link cn.microvideo.Message.message.send.Message}
+	 * {@link Agent#doSending(SMessage)}
 	 * @param message 发送的消息
 	 * @throws ErrcodeException 
 	 */

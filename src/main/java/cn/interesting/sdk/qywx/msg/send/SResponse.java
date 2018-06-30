@@ -14,6 +14,10 @@ import cn.interesting.sdk.qywx.WeChatRES;
 public class SResponse extends WeChatRES {
 
 	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	/**
 	 * 无效用户
 	 */
 	private String invaliduser;

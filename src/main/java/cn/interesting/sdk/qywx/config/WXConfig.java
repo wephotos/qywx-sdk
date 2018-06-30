@@ -61,7 +61,7 @@ public final class WXConfig {
 	public static class AgentScan{
 		
 		@XmlAttribute(name="base-package")
-		private String basePackage = "cn.microvideo.sdk.qywx.agent";
+		private String basePackage = "cn.interesting.sdk.qywx.agent";
 
 		public String getBasePackage() {
 			return basePackage;

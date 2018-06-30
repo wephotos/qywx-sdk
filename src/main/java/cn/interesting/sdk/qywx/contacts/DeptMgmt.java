@@ -81,6 +81,10 @@ public final class DeptMgmt {
 	 *
 	 */
 	public static class DeptListRES extends WeChatRES {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
 		private List<Department> department;
 
 		public List<Department> getDepartment() {
@@ -97,6 +101,10 @@ public final class DeptMgmt {
 	 *
 	 */
 	public static class DeptCreateRES extends WeChatRES {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
 		private long id;
 
 		public long getId() {

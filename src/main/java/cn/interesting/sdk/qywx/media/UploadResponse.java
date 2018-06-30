@@ -10,6 +10,11 @@ import cn.interesting.sdk.qywx.WeChatRES;
 public class UploadResponse extends WeChatRES{
 	
 	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
 	 * 媒体文件类型，分别有图片（image）、语音（voice）、视频（video）,普通文件(file) 
 	 */
 	private String type;

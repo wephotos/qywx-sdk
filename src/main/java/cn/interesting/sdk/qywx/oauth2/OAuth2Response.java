@@ -13,6 +13,10 @@ import cn.interesting.sdk.qywx.WeChatRES;
 public class OAuth2Response extends WeChatRES {
 
 	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	/**
 	 * 成员UserID
 	 */
 	@JsonProperty(value="UserId")

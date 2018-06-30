@@ -23,7 +23,7 @@ public final class WXConfigUtils {
 	
 	/**
 	 * 从XML中加载配置文件<br>
-	 * @param classpath syntax -> classpath:cn/microvideo/sdk/qywx/config/weixin-config.xml
+	 * @param classpath syntax -> classpath:cn/interesting/sdk/qywx/config/weixin-config.xml
 	 */
 	public static void load(String classpath){
 		classpath = classpath.replaceFirst("^classpath[^a-zA-Z_]+", "");

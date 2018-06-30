@@ -1,6 +1,5 @@
 package cn.interesting.sdk.qywx.contacts;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +10,7 @@ import cn.interesting.sdk.qywx.WeChatRES;
  * @author Aaron.tian
  *
  */
-public class User extends WeChatRES implements Serializable {
+public class User extends WeChatRES {
 
 	/**
 	 * 序列版本号

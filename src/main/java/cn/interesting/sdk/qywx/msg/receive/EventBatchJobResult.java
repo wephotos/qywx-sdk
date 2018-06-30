@@ -51,6 +51,10 @@ public class EventBatchJobResult extends EventMessage{
 	@XmlAccessorType(XmlAccessType.FIELD)
 	static class BatchJob extends WeChatRES{
 		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		/**
 		 * 异步任务id，最大长度为64字符
 		 */
 		private String JobId;

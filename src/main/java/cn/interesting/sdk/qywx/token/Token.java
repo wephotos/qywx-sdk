@@ -10,6 +10,10 @@ import cn.interesting.sdk.qywx.WeChatRES;
 public class Token extends WeChatRES {
 
 	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	/**
 	 * 获取到的访问凭证
 	 */
 	private String access_token;

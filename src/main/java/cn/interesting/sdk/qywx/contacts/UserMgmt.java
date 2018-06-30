@@ -167,6 +167,10 @@ public final class UserMgmt {
 	 *
 	 */
 	public static class SimplelistRES extends WeChatRES{
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
 		private List<User> userlist;
 
 		public List<User> getUserlist() {
@@ -183,6 +187,10 @@ public final class UserMgmt {
 	 *
 	 */
 	public static class UserOpenRES extends WeChatRES{
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
 		/**
 		 * 
 		 */
