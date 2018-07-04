@@ -118,14 +118,17 @@ public abstract class Agent {
 	 */
 	public final Map<String,String> getAPISignMap(HttpServletRequest request) throws ErrcodeException {
 		String jsapi_ticket = JSAPITicket.getJSAPITicket(getSecret());
-		String _url = request.getRequestURL().toString();
+		String requestURL = request.getRequestURL().toString();
+		if(WXConfigUtils.isEnableSSL() && !requestURL.startsWith("https")) {
+			requestURL = requestURL.replaceFirst("http", "https");
+		}
 		String QString = request.getQueryString();
 		if(QString !=null && !"null".equals(QString)){
 			QString = "?"+QString;
 		}else{
 			QString = "";
 		}
-		Map<String,String> map = JSAPITicket.sign(jsapi_ticket, _url+QString);
+		Map<String,String> map = JSAPITicket.sign(jsapi_ticket, requestURL + QString);
 		map.put("corpId", WXConfigUtils.getCorpid());
 		return map;
 	}
