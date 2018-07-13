@@ -32,10 +32,12 @@ public class WXListener implements ServletContextListener{
 		WXUtils.initConfig(classpath);
 		
 		String log4jLocation = servletContext.getInitParameter(LOG4J_CONFIG_LOCATION);
-		initLog4j(log4jLocation);
+		if(log4jLocation != null) {
+			initLog4j(log4jLocation);
+		}
 	}
 	
-	public void contextDestroyed(ServletContextEvent arg0) {
+	public void contextDestroyed(ServletContextEvent sce) {
 		LogManager.shutdown();
 	}
 

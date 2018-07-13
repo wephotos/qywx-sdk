@@ -26,6 +26,9 @@ public final class WXConfigUtils {
 	 * @param classpath syntax -> classpath:cn/interesting/sdk/qywx/config/weixin-config.xml
 	 */
 	public static void load(String classpath){
+		if(WX_CONFIG != null) {
+			return;
+		}
 		classpath = classpath.replaceFirst("^classpath[^a-zA-Z_]+", "");
 		ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
 		try (InputStream input = currentClassLoader.getResourceAsStream(classpath)) {

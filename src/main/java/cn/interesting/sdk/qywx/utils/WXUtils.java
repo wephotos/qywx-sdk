@@ -17,6 +17,8 @@ import cn.interesting.sdk.qywx.token.AccessToken;
  *
  */
 public final class WXUtils {
+	//配置文件是否初始化
+	private static volatile boolean initialized = false;
 
 	/**
 	 * 向微信服务器发起GET请求
@@ -109,7 +111,10 @@ public final class WXUtils {
 		if(classpath == null){
 			throw new IllegalArgumentException("配置文件路径不能为空.");
 		}
-		WXConfigUtils.load(classpath);
-		AgentFactory.loadAgent(WXConfigUtils.getAgentBasePackage());
+		if(!initialized) {
+			initialized = true;
+			WXConfigUtils.load(classpath);
+			AgentFactory.loadAgent(WXConfigUtils.getAgentBasePackage());
+		}
 	}
 }
