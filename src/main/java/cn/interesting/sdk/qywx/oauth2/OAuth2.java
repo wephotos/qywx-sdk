@@ -18,6 +18,7 @@ import cn.interesting.sdk.qywx.config.WXConfigUtils;
 import cn.interesting.sdk.qywx.exception.ErrcodeException;
 import cn.interesting.sdk.qywx.exception.WXUnCheckedException;
 import cn.interesting.sdk.qywx.utils.WXUtils;
+import cn.interesting.sdk.qywx.web.HttpTrustedDomainProxy;
 
 /**
  * 企业应用中的URL链接（包括自定义菜单或者消息中的链接），可以通过OAuth2.0验证接口来获取成员的身份信息。
@@ -157,14 +158,7 @@ public final class OAuth2 {
 	 * @return 可信域名
 	 */
 	private static String getTrustedDomain(HttpServletRequest request){
-		StringBuilder trustedDomain = new StringBuilder();
-		trustedDomain.append(request.getServerName());
-		int port = request.getServerPort();
-		if(port != 80 && port != 443){
-			trustedDomain.append(":");
-			trustedDomain.append(port);
-		}
-		return trustedDomain.toString();
+		return HttpTrustedDomainProxy.getTrustedDomain(request);
 	}
 	
 	/**

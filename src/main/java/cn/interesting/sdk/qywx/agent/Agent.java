@@ -17,6 +17,7 @@ import cn.interesting.sdk.qywx.msg.response.Message;
 import cn.interesting.sdk.qywx.msg.send.Messager;
 import cn.interesting.sdk.qywx.msg.send.SMessage;
 import cn.interesting.sdk.qywx.msg.send.SResponse;
+import cn.interesting.sdk.qywx.oauth2.OAuth2;
 import cn.interesting.sdk.qywx.token.JSAPITicket;
 
 /**
@@ -118,17 +119,7 @@ public abstract class Agent {
 	 */
 	public final Map<String,String> getAPISignMap(HttpServletRequest request) throws ErrcodeException {
 		String jsapi_ticket = JSAPITicket.getJSAPITicket(getSecret());
-		String requestURL = request.getRequestURL().toString();
-		if(WXConfigUtils.isEnableSSL() && !requestURL.startsWith("https")) {
-			requestURL = requestURL.replaceFirst("http", "https");
-		}
-		String QString = request.getQueryString();
-		if(QString !=null && !"null".equals(QString)){
-			QString = "?"+QString;
-		}else{
-			QString = "";
-		}
-		Map<String,String> map = JSAPITicket.sign(jsapi_ticket, requestURL + QString);
+		Map<String,String> map = JSAPITicket.sign(jsapi_ticket, OAuth2.getRedirectURL(request));
 		map.put("corpId", WXConfigUtils.getCorpid());
 		return map;
 	}
