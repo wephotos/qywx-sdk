@@ -9,9 +9,9 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
 import cn.interesting.sdk.qywx.WeChatRES;
@@ -50,15 +50,14 @@ public final class MediaManager {
 	 * @throws ErrcodeException 
 	 */
 	public static UploadResponse upload(MediaFile mediaFile, String secret) throws ErrcodeException {
-		HttpClient client = new DefaultHttpClient();
+		HttpClient client = HttpClients.createDefault();
 		String access_token = AccessToken.getAccessToken(secret);
 		String url = UPLOAD_URL+"?access_token="+access_token+"&type="+mediaFile.getType();
 		HttpPost post = new HttpPost(url);
 		try {
 			FileBody contentBody = new FileBody(mediaFile.getMedia());
-			MultipartEntity fileEntity = new MultipartEntity();
-			fileEntity.addPart("media", contentBody);
-			post.setEntity(fileEntity);
+			HttpEntity postEntity = MultipartEntityBuilder.create().addPart("media", contentBody).build();
+			post.setEntity(postEntity);
 			HttpResponse response = client.execute(post);
 			HttpEntity entity = response.getEntity();
 			UploadResponse resp = JSONUtils.JSON2Object(EntityUtils.toString(entity), UploadResponse.class);
@@ -89,7 +88,7 @@ public final class MediaManager {
 		get.setHeader("Date", new Date().toString());
 		get.setHeader("Cache-Control", "no-cache, must-revalidate");
 		try{
-			HttpClient client = new DefaultHttpClient();
+			HttpClient client = HttpClients.createDefault();
 			HttpResponse response = client.execute(get);
 			HttpEntity entity = response.getEntity();
 			Header disposition = response.getFirstHeader("Content-disposition");

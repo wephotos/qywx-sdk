@@ -28,19 +28,21 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.params.ClientPNames;
-import org.apache.http.client.params.CookiePolicy;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
@@ -98,14 +100,10 @@ public final class HttpUtils {
 	 * @throws HttpSessionInvalidException 
 	 */
 	public static String post(String url, String postBody) throws HttpSessionInvalidException {
-		try {
 			HttpPost post = new HttpPost(getURI(url));
 			StringEntity body = new StringEntity(postBody, EnvConfig.charset);
 			post.setEntity(body);
 			return getHttpString(post);
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException("不支持的编码", e);
-		}
 	}
 
 	/**
@@ -259,6 +257,7 @@ public final class HttpUtils {
 		 * 处理SSL协议的客户端
 		 */
 		private static HttpClient defautClient_SSL;
+
 		/**
 		 * 无参构造，初始化
 		 */
@@ -266,33 +265,40 @@ public final class HttpUtils {
 			_initHttpsClient();
 			_initDefaultClient();
 		}
+
 		/**
 		 * 根据HttpUriRequest获取HttpClient对象
+		 * 
 		 * @param request
 		 * @return
 		 */
-		public HttpClient getHttpClient(HttpUriRequest request){
+		public HttpClient getHttpClient(HttpUriRequest request) {
 			String scheme = request.getURI().getScheme();
 			if (SCHEME_HTTPS.equals(scheme)) {
 				return defautClient_SSL;
-			}else{
+			} else {
 				return defautClient;
 			}
 		}
+
 		/**
 		 * 获取默认的转接客户端
+		 * 
 		 * @return
 		 */
-		private void _initDefaultClient(){
-			ThreadSafeClientConnManager conman = new ThreadSafeClientConnManager();
-			conman.setMaxTotal(200);
-			conman.setDefaultMaxPerRoute(50);
-			defautClient = new DefaultHttpClient(conman);
-			defautClient.getParams().setParameter(ClientPNames.HANDLE_REDIRECTS, false);
-			defautClient.getParams().setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
+		private void _initDefaultClient() {
+			PoolingHttpClientConnectionManager manager = new PoolingHttpClientConnectionManager();
+			manager.setMaxTotal(200);
+			manager.setDefaultMaxPerRoute(50);
+			RequestConfig config = RequestConfig.custom().setCookieSpec(CookieSpecs.IGNORE_COOKIES)
+					.setRedirectsEnabled(false).build();
+			defautClient = HttpClientBuilder.create().setConnectionManager(manager).setDefaultRequestConfig(config)
+					.build();
 		}
+
 		/**
 		 * HTTPS协议请求封装
+		 * 
 		 * @return HTTPS请求客户端
 		 */
 		private void _initHttpsClient() {
@@ -304,26 +310,34 @@ public final class HttpUtils {
 					}
 
 					@Override
-					public void checkServerTrusted(X509Certificate[] chain,
-							String authType) throws CertificateException {
+					public void checkServerTrusted(X509Certificate[] chain, String authType)
+							throws CertificateException {
 					}
 
 					@Override
-					public void checkClientTrusted(X509Certificate[] chain,
-							String authType) throws CertificateException {
+					public void checkClientTrusted(X509Certificate[] chain, String authType)
+							throws CertificateException {
 					}
 				};
-				SSLContext ctx = SSLContext.getInstance("TLS");
-				ctx.init(null, new TrustManager[] { x509TrustManager }, null);
-				SSLSocketFactory ssf = new SSLSocketFactory(ctx,SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-				SchemeRegistry registry = new SchemeRegistry();
-				registry.register(new Scheme("https", 443, ssf));
-				ThreadSafeClientConnManager conman = new ThreadSafeClientConnManager(registry);
-				conman.setMaxTotal(200);
-				conman.setDefaultMaxPerRoute(50);
-				defautClient_SSL = new DefaultHttpClient(conman);
-				defautClient_SSL.getParams().setParameter(ClientPNames.HANDLE_REDIRECTS, false);
-				defautClient_SSL.getParams().setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
+				SSLContext sslContext = SSLContext.getInstance("TLS");
+				sslContext.init(null, new TrustManager[] { x509TrustManager }, null);
+				ConnectionSocketFactory sslFactory = new SSLConnectionSocketFactory(sslContext, SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+				Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
+						.register("http", PlainConnectionSocketFactory.getSocketFactory())
+						.register("https", sslFactory)
+						.build();
+
+				PoolingHttpClientConnectionManager manager = new PoolingHttpClientConnectionManager(registry);
+				manager.setMaxTotal(200);
+				manager.setDefaultMaxPerRoute(50);
+				RequestConfig config = RequestConfig.custom()
+						.setCookieSpec(CookieSpecs.IGNORE_COOKIES)
+						.setRedirectsEnabled(false)
+						.build();
+				defautClient_SSL = HttpClientBuilder.create()
+						.setConnectionManager(manager)
+						.setDefaultRequestConfig(config)
+						.build();
 			} catch (Exception e) {
 				Logger.getLogger(HttpClientFactory.class).error("SSL设置错误", e);
 				throw new RuntimeException("SSL设置错误：" + e.getMessage());
@@ -426,5 +440,9 @@ public final class HttpUtils {
 				url.append(query);
 			}
 			return url.toString();
+		}
+		
+		public static void main(String[] args) throws HttpSessionInvalidException {
+			System.out.println(HttpUtils.get("https://www.baidu.com"));
 		}
 }
