@@ -6,20 +6,20 @@ import java.util.Date;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
 import cn.interesting.sdk.qywx.WeChatRES;
 import cn.interesting.sdk.qywx.config.DomainUtils;
 import cn.interesting.sdk.qywx.exception.AccessTokenInvalidException;
 import cn.interesting.sdk.qywx.exception.ErrcodeException;
+import cn.interesting.sdk.qywx.exception.HttpSessionInvalidException;
 import cn.interesting.sdk.qywx.exception.WXUnCheckedException;
 import cn.interesting.sdk.qywx.token.AccessToken;
+import cn.interesting.sdk.qywx.utils.HttpUtils;
 import cn.interesting.sdk.qywx.utils.JSONUtils;
 
 /**
@@ -50,27 +50,20 @@ public final class MediaManager {
 	 * @throws ErrcodeException 
 	 */
 	public static UploadResponse upload(MediaFile mediaFile, String secret) throws ErrcodeException {
-		HttpClient client = HttpClients.createDefault();
-		String access_token = AccessToken.getAccessToken(secret);
-		String url = UPLOAD_URL+"?access_token="+access_token+"&type="+mediaFile.getType();
-		HttpPost post = new HttpPost(url);
 		try {
+			String access_token = AccessToken.getAccessToken(secret);
+			String url = UPLOAD_URL+"?access_token="+access_token+"&type="+mediaFile.getType();
 			FileBody contentBody = new FileBody(mediaFile.getMedia());
 			HttpEntity postEntity = MultipartEntityBuilder.create().addPart("media", contentBody).build();
+			HttpPost post = new HttpPost(url);
 			post.setEntity(postEntity);
-			HttpResponse response = client.execute(post);
-			HttpEntity entity = response.getEntity();
-			UploadResponse resp = JSONUtils.JSON2Object(EntityUtils.toString(entity), UploadResponse.class);
+			UploadResponse resp = JSONUtils.JSON2Object(HttpUtils.getHttpString(post), UploadResponse.class);
 			return resp.checkErrorCode();
 		}catch (AccessTokenInvalidException e){
 			AccessToken.getNewAccessToken(secret);
 			return upload(mediaFile, secret);
-		}catch (IOException e) {
+		}catch (HttpSessionInvalidException e) {
 			throw new WXUnCheckedException(e.getMessage());
-		}finally{
-			if(post != null){
-				post.abort();
-			}
 		}
 	}
 	
@@ -82,14 +75,13 @@ public final class MediaManager {
 	 * @throws ErrcodeException 
 	 */
 	public static MediaFile get(String media_id, String secret) throws ErrcodeException {
-		String access_token = AccessToken.getAccessToken(secret);
-		String url = GET_URL+"?access_token="+access_token+"&media_id="+media_id;
-		HttpGet get = new HttpGet(url);
-		get.setHeader("Date", new Date().toString());
-		get.setHeader("Cache-Control", "no-cache, must-revalidate");
 		try{
-			HttpClient client = HttpClients.createDefault();
-			HttpResponse response = client.execute(get);
+			String access_token = AccessToken.getAccessToken(secret);
+			String url = GET_URL+"?access_token="+access_token+"&media_id="+media_id;
+			HttpGet get = new HttpGet(url);
+			get.setHeader("Date", new Date().toString());
+			get.setHeader("Cache-Control", "no-cache, must-revalidate");
+			HttpResponse response = HttpUtils.getHttpResponse(get);
 			HttpEntity entity = response.getEntity();
 			Header disposition = response.getFirstHeader("Content-disposition");
 			if(disposition != null){
@@ -106,15 +98,11 @@ public final class MediaManager {
 				resp.checkErrorCode();
 				return null;
 			}
-		}catch (AccessTokenInvalidException e){ 
+		}catch (AccessTokenInvalidException e){
 			AccessToken.getNewAccessToken(secret);
 			return get(media_id, secret);
-		}catch (IOException e){
+		}catch (IOException | HttpSessionInvalidException e){
 			throw new WXUnCheckedException("下载文件失败",e);
-		}finally{
-			if(get != null){
-				get.abort();
-			}
 		}
 	}
 
