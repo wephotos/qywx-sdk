@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -259,7 +260,8 @@ public final class HttpUtils {
 		 * 处理SSL协议的客户端
 		 */
 		private volatile static CloseableHttpClient defautClient;
-
+		//初始化一次HTTPClient
+		private final static AtomicBoolean initialization = new AtomicBoolean(false);
 		// private
 		private HttpClientFactory() {
 
@@ -281,8 +283,8 @@ public final class HttpUtils {
 		 * @return
 		 */
 		public static HttpClient getDefaultHttpClient() {
-			if (defautClient == null) {
-				_initDefaultHttpClient();
+			if (initialization.compareAndSet(false, true)) {
+				defautClient = _initDefaultHttpClient();
 			}
 			return defautClient;
 		}
@@ -292,7 +294,7 @@ public final class HttpUtils {
 		 * 
 		 * @return HTTPS请求客户端
 		 */
-		private static void _initDefaultHttpClient() {
+		private static CloseableHttpClient _initDefaultHttpClient() {
 			try {
 				X509TrustManager x509TrustManager = new X509TrustManager() {
 					@Override
@@ -325,7 +327,7 @@ public final class HttpUtils {
 						.setCookieSpec(CookieSpecs.IGNORE_COOKIES)
 						.setRedirectsEnabled(false)
 						.build();
-				defautClient = HttpClientBuilder.create()
+				return HttpClientBuilder.create()
 						.setConnectionManager(manager)
 						.setDefaultRequestConfig(config)
 						.build();
