@@ -140,9 +140,6 @@ public final class AgentDispatcher {
 			@Override
 			public void run() {
 				RMessage message = MessageParser.parse(xml);
-				if(message == null){
-					return;
-				}
 				//通讯录变更事件
 				if(message instanceof EventContactMessage){
 					contactsListener.change_contact((EventContactMessage) message);
