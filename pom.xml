@@ -20,7 +20,7 @@
 		<commons.io.version>2.4</commons.io.version>
 		<jsr305.version>3.0.1</jsr305.version>
 		<jackson.mapper.version>1.6.4</jackson.mapper.version>
-		<jackson.databind.version>2.8.11.1</jackson.databind.version>
+		<jackson.databind.version>2.9.10.1</jackson.databind.version>
 	</properties>
 	<dependencies>
 		<dependency>
