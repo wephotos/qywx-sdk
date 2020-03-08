@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<weixin xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<!-- 要扫描的应用程序包 -->
+    <agent-scan base-package="com.github.wephotos.sdk.qywx.agent"/>
+    <!-- 配置参数 -->
+    <config>
+    	<!-- 企业号ID -->
+        <corpid>corpid</corpid>
+        <!-- 服务器是否开启HTTPS -->
+        <enable-ssl>false</enable-ssl>
+        <!-- 通讯录管理密钥 -->
+        <contacts-secret></contacts-secret>
+        <contacts-listener></contacts-listener>
+        <!-- 应用参数配置 -->
+        <agents>
+            <!-- 可由企业任意填写，用于生成签名-->
+            <token></token>
+            <!-- 用于消息体的加密，是AES密钥的Base64编码 -->
+            <encodingaeskey></encodingaeskey>
+            <!-- 企业微信应用 -->
+            <agent>
+            	<!-- 唯一标识 -->
+            	<id>100000</id>
+                <name>应用名称</name>
+            	<!-- secret是企业应用里面用于保障数据安全的“钥匙” -->
+            	<secret></secret>
+            </agent>
+        </agents>
+    </config>
+    <!-- 非过滤路径(包含) -->
+    <exclude-mapping>
+        <path>/resources</path>
+    </exclude-mapping>
+</weixin>
