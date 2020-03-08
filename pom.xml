@@ -5,7 +5,7 @@
 	<artifactId>qywx-sdk</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>qywx-sdk</name>
-	<description>qywx api</description>
+	<description>qywx-sdk for java</description>
 	<properties>
 		<!-- Generic properties -->
 		<java.version>1.8</java.version>
