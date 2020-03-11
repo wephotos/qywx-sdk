@@ -8,8 +8,8 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.util.EntityUtils;
 
 import com.github.wephotos.sdk.qywx.WeChatRES;
@@ -42,6 +42,10 @@ public final class MediaManager {
 	 */
 	public static final String GET_URL = DomainUtils.getQywxDomain()+"/cgi-bin/media/get";
 	
+	//禁止生成实例
+	private MediaManager() {
+		
+	}
 	/**
 	 * 上传媒体文件
 	 * @param mediaFile 媒体文件
@@ -51,13 +55,19 @@ public final class MediaManager {
 	 */
 	public static UploadResponse upload(MediaFile mediaFile, String secret) throws ErrcodeException {
 		try {
-			String access_token = AccessToken.getAccessToken(secret);
-			String url = UPLOAD_URL+"?access_token="+access_token+"&type="+mediaFile.getType();
-			FileBody contentBody = new FileBody(mediaFile.getMedia());
-			HttpEntity postEntity = MultipartEntityBuilder.create().addPart("media", contentBody).build();
+			String accessToken = AccessToken.getAccessToken(secret);
+			String url = String.format("%s?access_token=%s&type=%s", 
+					UPLOAD_URL, accessToken, mediaFile.getType());
+			
+			HttpEntity fileEntity = MultipartEntityBuilder.create()
+					.setMode(HttpMultipartMode.RFC6532)
+					.addBinaryBody("media", mediaFile.getMedia())
+					.build();
+			
 			HttpPost post = new HttpPost(url);
-			post.setEntity(postEntity);
-			UploadResponse resp = JSONUtils.JSON2Object(HttpUtils.getHttpString(post), UploadResponse.class);
+			post.setEntity(fileEntity);
+			String json = HttpUtils.getHttpString(post);
+			UploadResponse resp = JSONUtils.JSON2Object(json, UploadResponse.class);
 			return resp.checkErrorCode();
 		}catch (AccessTokenInvalidException e){
 			AccessToken.getNewAccessToken(secret);
@@ -74,10 +84,10 @@ public final class MediaManager {
 	 * @return 媒体响应消息 {@link UploadResponse}
 	 * @throws ErrcodeException 
 	 */
-	public static MediaFile get(String media_id, String secret) throws ErrcodeException {
+	public static MediaFile get(String mediaId, String secret) throws ErrcodeException {
 		try{
-			String access_token = AccessToken.getAccessToken(secret);
-			String url = GET_URL+"?access_token="+access_token+"&media_id="+media_id;
+			String accessToken = AccessToken.getAccessToken(secret);
+			String url = String.format("%s?access_token=%s&media_id=%s", GET_URL, accessToken, mediaId);
 			HttpGet get = new HttpGet(url);
 			get.setHeader("Date", new Date().toString());
 			get.setHeader("Cache-Control", "no-cache, must-revalidate");
@@ -94,16 +104,16 @@ public final class MediaManager {
 				mediaFile.setContentDisposition(disposition.getValue());
 				return mediaFile;
 			}else{
-				WeChatRES resp = JSONUtils.JSON2Object(EntityUtils.toString(entity), WeChatRES.class);
+				String json = EntityUtils.toString(entity);
+				WeChatRES resp = JSONUtils.JSON2Object(json, WeChatRES.class);
 				resp.checkErrorCode();
 				return null;
 			}
 		}catch (AccessTokenInvalidException e){
 			AccessToken.getNewAccessToken(secret);
-			return get(media_id, secret);
+			return get(mediaId, secret);
 		}catch (IOException | HttpSessionInvalidException e){
-			throw new WXUnCheckedException("下载文件失败",e);
+			throw new WXUnCheckedException("下载文件失败", e);
 		}
 	}
-
 }
